@@ -1,0 +1,5 @@
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+.\venv\Scripts\activate   
+uvicorn main:app --reload --host 0.0.0.0 --port 5100
+
+uvicorn main:app --host 0.0.0.0 --port 5100 --reload --log-level debug
