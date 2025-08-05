@@ -41,8 +41,24 @@ export default function QCPage() {
       alert(`上传成功，共 ${res.data.saved} 张图片。`);
       // 重置表单
       setLabel(""); setNumber(""); setUrl(""); setNote(""); setLocation(""); setFiles([]); setPreview([]);
-    } catch (err: any) {
-      alert(err.response?.data?.detail || "上传失败");
+    } catch (err: unknown) {
+      type ApiError = {
+        response?: {
+          data?: {
+            detail?: string;
+          };
+        };
+      };
+      if (
+        err &&
+        typeof err === "object" &&
+        "response" in err &&
+        (err as ApiError).response?.data?.detail
+      ) {
+        alert((err as ApiError).response!.data!.detail!);
+      } else {
+        alert("上传失败");
+      }
     } finally {
       setUploading(false);
     }

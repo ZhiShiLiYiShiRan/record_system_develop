@@ -15,3 +15,8 @@ IMAGE_ROOT = os.getenv("IMAGE_ROOT")
 
 # MongoDB URI
 MONGO_URI = os.getenv("MONGO_URI")
+
+# 图片上传的根目录，示例：C:/productImage
+UPLOAD_BASE = os.getenv("UPLOAD_BASE", r"C:\productImage")
+
+SESSION_CONFIG_PATH = os.getenv("SESSION_CONFIG_PATH", "config/session.txt")
