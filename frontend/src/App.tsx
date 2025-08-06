@@ -1,14 +1,14 @@
 // src/App.tsx
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
-import { PrivateRoute } from './components/PrivateRoute'
-import Login from './pages/Login'
-import RecordForm from './pages/RecordForm'  // 先占位
-import QCPage from './pages/QCPage'  // 先占位
-import Stats from './pages/stats'
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { PrivateRoute } from './components/PrivateRoute';
+import NavBar from './components/NavBar';
+import Login from './pages/Login';
+import RecordForm from './pages/RecordForm';
+import QCPage from './pages/QCPage';
+import Stats from './pages/stats';
 import UserMgmt from './pages/UserManagement';
 
 export default function App() {
-  // const role = localStorage.getItem('userRole')  // e.g. 'recorder' or 'qc'
   return (
     <Router>
       <Routes>
@@ -18,7 +18,10 @@ export default function App() {
           path="/record"
           element={
             <PrivateRoute allowedRoles={['recorder', 'admin', 'superadmin']}>
-              <RecordForm />
+              <>
+                <NavBar />
+                <RecordForm />
+              </>
             </PrivateRoute>
           }
         />
@@ -27,7 +30,10 @@ export default function App() {
           path="/qc"
           element={
             <PrivateRoute allowedRoles={['qc', 'admin', 'superadmin']}>
-              <QCPage />
+              <>
+                <NavBar />
+                <QCPage />
+              </>
             </PrivateRoute>
           }
         />
@@ -36,20 +42,28 @@ export default function App() {
           path="/stats"
           element={
             <PrivateRoute allowedRoles={['recorder', 'admin', 'superadmin']}>
-              <Stats />
+              <>
+                <NavBar />
+                <Stats />
+              </>
             </PrivateRoute>
           }
         />
 
+        {/* 超管才能进入用户管理页面 */}
         <Route
           path="/admin"
           element={
             <PrivateRoute allowedRoles={['superadmin']}>
-              <UserMgmt />
+              <>
+                <NavBar />
+                <UserMgmt />
+              </>
             </PrivateRoute>
           }
         />
 
+        {/* 默认重定向到登录 */}
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </Router>

@@ -53,6 +53,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme)) -> str:
             raise credentials_exc
     except jwt.PyJWTError:
         raise credentials_exc
+    username = username.strip()
     # 再去数据库确认用户存在
     user = users_collection.find_one({"username": username})
     if user is None:

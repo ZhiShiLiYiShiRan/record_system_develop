@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import ImageDeleteModal from '../components/ImageDeleteModal'; // 路径按你项目调整
 import ImageUploadModal from '../components/ImageUploadModal'; // 路径按你项目调整
 import ImageZoomModal from '../components/ImageZoomModal';
-
+import api from '../services/api';
 
 // 基础 API 地址
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL
@@ -192,7 +192,7 @@ export default function RecordForm() {
 
   // 当前记录 ID
   const currentRecordId = useRef<string | null>(null);
-
+  
   
   // 登出函数
   const navigate = useNavigate()
@@ -341,7 +341,9 @@ export default function RecordForm() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ _id: currentRecordId.current })
       })
+      currentRecordId.current = null;
     }
+    localStorage.removeItem('lockedRecordId');   // 清理存储的锁 ID
     // 清除角色，跳回登录页
     localStorage.removeItem('userRole')
     localStorage.removeItem('username')
@@ -562,6 +564,7 @@ export default function RecordForm() {
         // 即使释放失败也不影响继续请求下一条记录
       } finally {
         currentRecordId.current = null;
+        localStorage.removeItem('lockedRecordId');
       }
     }
     
@@ -713,6 +716,16 @@ export default function RecordForm() {
       }
   }, [username])
 
+    // 清理函数：组件卸载时执行解锁
+  useEffect(() => {
+    return () => {
+      if (currentRecordId.current) {
+        api.post(`/api/record/unlock?user=${username}`, { _id: currentRecordId.current })
+           .catch(err => console.error('解锁失败：', err));
+      }
+    }
+}, [])
+
   // 提交
   const handleSubmit = () => {
     if (!data || !productName.trim()) {
@@ -783,6 +796,8 @@ export default function RecordForm() {
       .catch(err => setFormError(err.message))
       .finally(() => setIsSkipping(false))
   }
+
+
 
     // Session 未加载或无 Session
   if (loadingSessions) return <div className="p-8">加载 Session...</div>
@@ -965,8 +980,8 @@ export default function RecordForm() {
                       productNameRef.current = el;
                     }}
                     value={productName}
-        onChange={e => {
-          let v = e.target.value;
+                    onChange={e => {
+                    let v = e.target.value;
                       if (v.length > maxProductNameLength) {
                         v = v.slice(0, maxProductNameLength);
                       }
